@@ -28,7 +28,13 @@ public:
 	int getUnits() const { return units; };
 	int getTotEnrl() const { return totEnrl; };
 	int getCapEnrl() const { return capEnrl; };
-	string getInstructor() const { return instructor; };
+	string getInstructor() const { return instructor.substr(1); };
+
+	void fixInstructorName() {
+		if (!instructor.empty() && instructor.front() == '"') {
+			instructor = instructor.substr(1); // Remove the first character
+		}
+	}
 
 	bool operator==(const scheduleItem& other) const {
 		return (subject == other.subject && catalog == other.catalog && section == other.section);
@@ -54,7 +60,17 @@ public:
 	}
 
 	void print() const {
-		cout << subject << " " << catalog << " " << section << " " << component << " " << session << " " << units << " " << totEnrl << " " << capEnrl << " " << instructor << endl;
+		cout << left
+			<< setw(10) << subject
+			<< setw(10) << catalog
+			<< setw(10) << section
+			<< setw(10) << component
+			<< setw(10) << session
+			<< setw(8) << units
+			<< setw(8) << totEnrl
+			<< setw(6) << capEnrl
+			<< setw(15) << instructor.substr(1)
+			<< endl;
 	}
 
 

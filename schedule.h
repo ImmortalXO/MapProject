@@ -5,6 +5,7 @@
 #include <iterator>
 #include <utility>
 #include <iomanip>
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include "scheduleItem.h"
@@ -27,14 +28,17 @@ public:
 		while (getline(inFile, line)) {
 			stringstream ss(line);
 			string subject, catalog, section, component, session, units, totEnrl, capEnrl, instructor;
+			string dummy1, dummy2, dummy3;
 			getline(ss, subject, ',');
 			getline(ss, catalog, ',');
 			getline(ss, section, ',');
 			getline(ss, component, ',');
 			getline(ss, session, ',');
+			getline(ss, dummy1, ',');
 			getline(ss, units, ',');
 			getline(ss, totEnrl, ',');
 			getline(ss, capEnrl, ',');
+			getline(ss, dummy3, ',');
 			getline(ss, instructor, ',');
 
 			int unitsStr = stoi(units);
@@ -64,46 +68,62 @@ public:
 				<< setw(10) << item.getSubject()
 				<< setw(10) << item.getCatalog()
 				<< setw(10) << item.getSection()
-				<< setw(14) << item.getComponent()
+				<< setw(10) << item.getComponent()
 				<< setw(10) << item.getSession()
-				<< setw(10) << item.getUnits()
-				<< setw(10) << item.getTotEnrl()
-				<< setw(10) << item.getCapEnrl()
-				<< setw(27) << item.getInstructor()
+				<< setw(8) << item.getUnits()
+				<< setw(8) << item.getTotEnrl()
+				<< setw(6) << item.getCapEnrl()
+				<< setw(8) << item.getInstructor()
 				<< endl;
 		}
 	}
 
-	scheduleItem findBySubject(string& subj) {
+	void findBySubject(string& subj) {
 		for (const auto& kvp : scheduleMap) {
 			const scheduleItem& item = kvp.second;
+			transform(subj.begin(), subj.end(), subj.begin(), ::toupper);
 			if (subj == item.getSubject()) {
 				item.print();
 			}
 		}
 	}
-	scheduleItem findBySubjectAndCatalog(string& subj, string& cat) {
+	void findBySubjectAndCatalog(string& subj, string& cat) {
 		for (const auto& kvp : scheduleMap) {
 			const scheduleItem& item = kvp.second;
+			transform(subj.begin(), subj.end(), subj.begin(), ::toupper);
 			if (subj == item.getSubject() && cat == item.getCatalog()) {
 				item.print();
 			}
 		}
 	}
 
-	scheduleItem findByInstructor(string& lastName) {
+	void findByInstructor(string& lastName) {
 		for (const auto& kvp : scheduleMap) {
 			const scheduleItem& item = kvp.second;
 			string instructorFullName = item.getInstructor();
 			size_t comma = instructorFullName.find(',');
+			string instructorLast;
 			if (comma != string::npos) {
-				string instructorLast = instructorFullName.substr(0,comma);
-				if (instructorLast == lastName) {
-					item.print();
-				}
+				instructorLast = instructorFullName.substr(0,comma);
+			}
+			else {
+				instructorLast = instructorFullName;
+			}
+			if (capitalizeFirstLetter(lastName) == instructorLast) {
+				item.print();
 			}
 		}
 	}
 
-};
+	// Function in order for all cases for last name to be recognized
+	string capitalizeFirstLetter(string input) {
+		if (!input.empty()) {
+			input[0] = toupper(input[0]);
+			for (size_t i = 1; i < input.length(); ++i) {
+				input[i] = tolower(input[i]);
+			}
+		}
+		return input;
+	}
 
+};
