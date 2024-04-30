@@ -30,12 +30,6 @@ public:
 	int getCapEnrl() const { return capEnrl; };
 	string getInstructor() const { return instructor.substr(1); };
 
-	void fixInstructorName() {
-		if (!instructor.empty() && instructor.front() == '"') {
-			instructor = instructor.substr(1); // Remove the first character
-		}
-	}
-
 	bool operator==(const scheduleItem& other) const {
 		return (subject == other.subject && catalog == other.catalog && section == other.section);
 	}
