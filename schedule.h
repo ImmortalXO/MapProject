@@ -28,7 +28,7 @@ public:
 		while (getline(inFile, line)) {
 			stringstream ss(line);
 			string subject, catalog, section, component, session, units, totEnrl, capEnrl, instructor;
-			string dummy1, dummy2, dummy3;
+			string dummy1, dummy2;
 			getline(ss, subject, ',');
 			getline(ss, catalog, ',');
 			getline(ss, section, ',');
@@ -38,7 +38,7 @@ public:
 			getline(ss, units, ',');
 			getline(ss, totEnrl, ',');
 			getline(ss, capEnrl, ',');
-			getline(ss, dummy3, ',');
+			getline(ss, dummy2, ',');
 			getline(ss, instructor, ',');
 
 			int unitsStr = stoi(units);
