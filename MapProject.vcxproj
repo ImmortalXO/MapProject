@@ -130,6 +130,7 @@
     <ClCompile Include="MapProject.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Downloads\HashTable.h" />
     <ClInclude Include="schedule.h" />
     <ClInclude Include="scheduleItem.h" />
   </ItemGroup>

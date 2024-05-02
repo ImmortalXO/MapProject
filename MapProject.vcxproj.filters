@@ -26,6 +26,9 @@
     <ClInclude Include="schedule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Downloads\HashTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="STEM - Summer 2022 Schedule of Classes as of 05-02-22(1).csv">
