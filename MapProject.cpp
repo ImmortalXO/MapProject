@@ -12,7 +12,8 @@ int showMenu() {
 	cout << "3. Find By Instructor's Last Name" << endl;
 	cout << "4. Print All Records" << endl;
 	cout << "5. Print Statistics" << endl;
-	cout << "6. Quit" << endl;
+	cout << "6. Get Hash Index" << endl;
+	cout << "7. Quit" << endl;
 	cout << "Choice: ";
 	cin >> choice;
 	return choice;
@@ -32,13 +33,18 @@ int strHashFunction(string key) {
 	return hashVal;
 };
 
+size_t gethHashIndex(string key, int tableSize) {
+	return strHashFunction(key) % tableSize;
+}
+
 int main() {
 	ifstream dataFile("STEM - Summer 2022 Schedule of Classes as of 05-02-22(1).csv");
-	schedule item(179);
+	int tableSize = 179;
+	schedule item(tableSize);
 	item.setHashFunction(strHashFunction);
 	item.initSchedule(dataFile);
 
-	string subject, catalog, lastName;
+	string subject, catalog, lastName, key;
 	int choice = showMenu();
 	switch (choice) {
 		case 1:
@@ -69,7 +75,14 @@ int main() {
 		case 5:
 			item.statistics();
 			break;
-		case 6:
+		case 6: {
+			cout << "Enter a key: ";
+			cin >> key;
+			size_t hashTableIndex = gethHashIndex(key, 179);
+			cout << "Hash index for: " << key << " is " << hashTableIndex << endl;
+			break;
+		}
+		case 7:
 			cout << "Goodbye.";
 			break;
 	}

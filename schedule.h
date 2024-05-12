@@ -69,6 +69,14 @@ public:
 		cout << "Length of the longest chain: " << scheduleTable.maxBucketSize() << endl;
 	}
 
+	vector<scheduleItem> getHashIndex(string& key) {
+		vector<scheduleItem> ind;
+		for (const auto& ch : key) {
+			ind = scheduleTable.getByIndex(ch);
+		}
+		return ind;
+	}
+
 	void printHeader() const {
 		cout << "Subject " << " Catalog " << " Section " << " Component " << " Session " << " Units " << " TotEnrl " << " CapEnrl " << " Instructor " << endl;
 	}
