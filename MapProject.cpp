@@ -35,6 +35,7 @@ int main() {
 			cin >> subject;
 			cout << "Enter the name of the catalog: ";
 			cin >> catalog;
+			cout << endl;
 			item.printHeader();
 			item.findBySubjectAndCatalog(subject, catalog);
 			break;
