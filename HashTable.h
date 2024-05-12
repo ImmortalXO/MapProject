@@ -9,167 +9,168 @@
 // Hash table class using separate chaining
 template <typename K, typename V> class HashTable {
 private:
-  std::vector<std::list<std::pair<K, V>>> table;
-  size_t size;                                   // Number items in the table
-  size_t buckets;                                // Max capacity of the table
-  std::function<size_t(const K &)> hashFunction; // User supplied hash function
+    std::vector<std::list<std::pair<K, V>>> table;
+    size_t size;                                   // Number items in the table
+    size_t buckets;                                // Max capacity of the table
+    std::function<size_t(const K&)> hashFunction; // User supplied hash function
 
-  // Double the table size and rehash all elements
-  void resizeTable() {
-    size_t newTableSize = table.buckets() * 2;
-    std::vector<std::list<std::pair<K, V>>> newTable(newTableSize);
-    for (const auto &chain : table) {
-      for (const auto &pair : chain) {
-        size_t index = hashFunction(pair.first) % newTableSize;
-        newTable[index].push_back(pair);
-      }
+    // Double the table size and rehash all elements
+    void resizeTable() {
+        size_t newTableSize = table.buckets() * 2;
+        std::vector<std::list<std::pair<K, V>>> newTable(newTableSize);
+        for (const auto& chain : table) {
+            for (const auto& pair : chain) {
+                size_t index = hashFunction(pair.first) % newTableSize;
+                newTable[index].push_back(pair);
+            }
+        }
+        table = std::move(newTable);
+        buckets = newTableSize;
     }
-    table = std::move(newTable);
-    buckets = newTableSize;
-  }
 
 public:
-  // Constructor
-  HashTable(size_t initialSize = 10,
-            std::function<size_t(const K &)> hashFunc = std::hash<K>{})
-      : size(0), hashFunction(hashFunc) {
-    table.resize(initialSize);
-    buckets = table.capacity();
-  }
-
-  // Precondition - Takes a reference to a key object and a value object
-  // Postcondition - If the key already exists, updates the value object 
-  // for that key, otherwise uses the key to insert the value object
-  // into the hashtable
-  void insert(const K &key, const V &value) {
-    size_t index = hashFunction(key) % buckets;
-    for (auto &pair : table[index]) {
-      if (pair.first == key) {
-        // Key already exists; update the value
-        pair.second = value;
-        return;
-      }
+    // Constructor
+    HashTable(size_t initialSize = 10,
+        std::function<size_t(const K&)> hashFunc = std::hash<K>{})
+        : size(0), hashFunction(hashFunc) {
+        table.resize(initialSize);
+        buckets = table.capacity();
     }
-    // Key doesn't exist; add a new key-value pair
-    table[index].push_back(std::make_pair(key, value));
-    size++;
-  }
 
-  // Precondition - Takes a reference to a key object and a value object
-  // Postcondition - returns true if the key was found in the table and 
-  // stores the value item in the value parameter, returns false 
-  // if the key was not found and the value parameter is not valid
-  bool get(const K &key, V &value) {
-    size_t index = hashFunction(key) % buckets;
-    for (const auto &pair : table[index]) {
-      if (pair.first == key) {
-        value = pair.second;
-        return true;
-      }
+    // Precondition - Takes a reference to a key object and a value object
+    // Postcondition - If the key already exists, updates the value object 
+    // for that key, otherwise uses the key to insert the value object
+    // into the hashtable
+    void insert(const K& key, const V& value) {
+        size_t index = hashFunction(key) % buckets;
+        for (auto& pair : table[index]) {
+            if (pair.first == key) {
+                // Key already exists; update the value
+                pair.second = value;
+                return;
+            }
+        }
+        // Key doesn't exist; add a new key-value pair
+        table[index].push_back(std::make_pair(key, value));
+        size++;
     }
-    return false; // Key not found
-  }
 
-  // Precondition - Takes an index into the hash table 
-  // Postcondition - if the index is within the bounds of the vector,
-  // returns a vector of the items that hashed to that index. Returns
-  // an empty vector if the bucket at that index is empty or if the 
-  // index is out of range
-  std::vector<V> getByIndex(size_t index) {
-    if (index < 0 || index > buckets-1)
-      return std::vector<V>();
-    if (table[index].size() > 0) {
-      std::vector<V> items(table[index].size());
-      int i = 0;
-      for (const auto &pair : table[index]) {
-        items[i] = pair.second;
-        i++;
-      }
-      return items;
+    // Precondition - Takes a reference to a key object and a value object
+    // Postcondition - returns true if the key was found in the table and 
+    // stores the value item in the value parameter, returns false 
+    // if the key was not found and the value parameter is not valid
+    bool get(const K& key, V& value) {
+        size_t index = hashFunction(key) % buckets;
+        for (const auto& pair : table[index]) {
+            if (pair.first == key) {
+                value = pair.second;
+                return true;
+            }
+        }
+        return false; // Key not found
     }
-    return std::vector<V>();
-  }
 
-  // Precondition - Takes a reference to a key object
-  // Postcondition - If the key hashes to an index and the index has one 
-  // or more items in the chain at that index, searches for the key 
-  // and if found, deletes the record from the chain and returns true. 
-  // If the bucket is empty or the key is not found, returns false.
-  bool remove(const K &key) {
-    size_t index = hashFunction(key) % buckets;
-    auto &chain = table[index];
-    auto it = chain.begin();
-    while (it != chain.end()) {
-      if (it->first == key) {
-        it = chain.erase(it);
-        size--;
-        return true;
-      } else {
-        ++it;
-      }
+    // Precondition - Takes an index into the hash table 
+    // Postcondition - if the index is within the bounds of the vector,
+    // returns a vector of the items that hashed to that index. Returns
+    // an empty vector if the bucket at that index is empty or if the 
+    // index is out of range
+    std::vector<V> getByIndex(size_t index) {
+        if (index < 0 || index > buckets - 1)
+            return std::vector<V>();
+        if (table[index].size() > 0) {
+            std::vector<V> items(table[index].size());
+            int i = 0;
+            for (const auto& pair : table[index]) {
+                items[i] = pair.second;
+                i++;
+            }
+            return items;
+        }
+        return std::vector<V>();
     }
-    return false; // Key not found
-  }
 
-  // Returns the number of items in the hashtable
-  size_t getSize() const { return size; }
-
-  // Displays all the key-value pairs in the hash table grouped by chain
-  void display() {
-    for (size_t i = 0; i < table.size(); i++) {
-      std::cout << "Bucket " << i << ": ";
-      for (const auto &pair : table[i]) {
-        std::cout << "(" << pair.first << ") ";
-      }
-      std::cout << std::endl;
+    // Precondition - Takes a reference to a key object
+    // Postcondition - If the key hashes to an index and the index has one 
+    // or more items in the chain at that index, searches for the key 
+    // and if found, deletes the record from the chain and returns true. 
+    // If the bucket is empty or the key is not found, returns false.
+    bool remove(const K& key) {
+        size_t index = hashFunction(key) % buckets;
+        auto& chain = table[index];
+        auto it = chain.begin();
+        while (it != chain.end()) {
+            if (it->first == key) {
+                it = chain.erase(it);
+                size--;
+                return true;
+            }
+            else {
+                ++it;
+            }
+        }
+        return false; // Key not found
     }
-  }
 
-  // Precondition - reference to a user-defined hash function
-  // Postcondition - Assigns the input to the hashFunction instance variable
-  void setHashFunction(std::function<size_t(const K &)> hashFunc) {
-    hashFunction = hashFunc;
-  }
+    // Returns the number of items in the hashtable
+    size_t getSize() const { return size; }
 
-  // Precondition - Receives a reference to a key object
-  // Postcondition - Returns the index that the key hashes to
-  size_t hash(const K &key) { return hashFunction(key) % table.size(); }
+    // Displays all the key-value pairs in the hash table grouped by chain
+    void display() {
+        for (size_t i = 0; i < table.size(); i++) {
+            std::cout << "Bucket " << i << ": ";
+            for (const auto& pair : table[i]) {
+                std::cout << "(" << pair.first << ") ";
+            }
+            std::cout << std::endl;
+        }
+    }
 
-  // Returns the number of buckets in the table
-  int getBuckets() const { return buckets; }
+    // Precondition - reference to a user-defined hash function
+    // Postcondition - Assigns the input to the hashFunction instance variable
+    void setHashFunction(std::function<size_t(const K&)> hashFunc) {
+        hashFunction = hashFunc;
+    }
 
-  // Returns the load factor for the table
-  double getLoadFactor() const {
-      double loadFactor = 0;
-      if (buckets > 0) {
-          loadFactor = static_cast<double>(size) / buckets;
-      }
-      return loadFactor;
-  }
+    // Precondition - Receives a reference to a key object
+    // Postcondition - Returns the index that the key hashes to
+    size_t hash(const K& key) { return hashFunction(key) % table.size(); }
 
-  // Calculates and returns the number collisions
-  // NOTE: Tried numerous different ways to implement this function, my program just does not run it - i dont know why.
-  // Use this container's display function in the statistics function to check for collisions. It shows the collisions but my
-  // cont. program retrieve the number.
-  int countCollisions() const {
-      int collisionCount = 0;
-      for (size_t i = 0; i < scheduleTable.getBuckets(); ++i) {
-          if (scheduleTable.getByIndex(i).size() > 1) {
-              collisionCount++;
-          }
-      }
-      return collisionCount;
-  }
+    // Returns the number of buckets in the table
+    int getBuckets() const { return buckets; }
 
-  // Finds and returns the size of the bucket with the longest chain
-  // NOTE: Tried numerous different ways to implement this function, my program just does not run it - i dont know why.
-  int maxBucketSize() const {
-      int maxSize = 0;
-      for (const auto& ch : table) {
-          maxSize = std::max(maxSize, static_cast<int>(ch.size()));
-      }
-      return maxSize;
-  }
+    // Returns the load factor for the table
+    double getLoadFactor() const {
+        double loadFactor = 0;
+        if (buckets > 0) {
+            loadFactor = static_cast<double>(size) / buckets;
+        }
+        return loadFactor;
+    }
+
+    // Calculates and returns the number collisions
+    // NOTE: Tried numerous different ways to implement this function, my program just does not run it - i dont know why.
+    // Use this container's display function in the statistics function to check for collisions. It shows the collisions but my
+    // cont. program retrieve the number.
+    int countCollisions() const {
+        int collisionCount = 0;
+        for (const auto& chain : table) {
+            if (chain.size() > 1) {
+                collisionCount += chain.size() - 1;
+            }
+        }
+        return collisionCount;
+    }
+
+    // Finds and returns the size of the bucket with the longest chain
+    // NOTE: Tried numerous different ways to implement this function, my program just does not run it - i dont know why.
+    int maxBucketSize() const {
+        int maxSize = 0;
+        for (const auto& ch : table) {
+            maxSize = std::max(maxSize, static_cast<int>(ch.size()));
+        }
+        return maxSize;
+    }
 
 };
 #endif

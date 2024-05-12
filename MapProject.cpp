@@ -20,10 +20,15 @@ int showMenu() {
 
 int strHashFunction(string key) {
 	size_t hashVal = 0;
+	//for (auto ch : key)
+		//hashVal += ch;
+	//hashVal = key[0] + 27 * key[1] + 729 * key[2];
+	//for (char ch : key)
+		//hashVal = 37 * hashVal + ch;
 	for (const auto& ch : key) {
 		hashVal = (hashVal * 31) + ch;
 	}
-	// hashVal = (hash<string>()(key));
+	//hashVal = (hash<string>()(key));
 	return hashVal;
 };
 

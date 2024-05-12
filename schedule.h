@@ -18,6 +18,7 @@ class schedule : public scheduleItem
 private:
 	HashTable<string, scheduleItem> scheduleTable;
 public:
+	schedule() {};
 	schedule(int initialSize) : scheduleTable(initialSize) {};
 
 	void setHashFunction(std::function<size_t(const std::string&)> hashFunc) {
@@ -61,7 +62,6 @@ public:
 	}
 
 	void statistics() {
-		scheduleTable.display();
 		cout << "Size of the hash table: " << scheduleTable.getSize() << endl;
 		cout << "Number of buckets in hash table: " << scheduleTable.getBuckets() << endl;
 		cout << "Load factor of the hash table: " << scheduleTable.getLoadFactor() << endl;

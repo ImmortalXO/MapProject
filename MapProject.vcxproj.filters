@@ -26,7 +26,7 @@
     <ClInclude Include="schedule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\HashTable.h">
+    <ClInclude Include="HashTable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
