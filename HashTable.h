@@ -1,3 +1,5 @@
+#ifndef HASHTABLE_H
+#define HASHTABLE_H
 #include <functional>
 #include <iostream>
 #include <iterator>
@@ -138,23 +140,36 @@ public:
 
   // Returns the load factor for the table
   double getLoadFactor() const {
-    double loadFactor=0;
-    loadFactor = static_cast<double>(size) / buckets;
-    return loadFactor;
+      double loadFactor = 0;
+      if (buckets > 0) {
+          loadFactor = static_cast<double>(size) / buckets;
+      }
+      return loadFactor;
   }
 
-  // Calculates and returns the number collisions 
+  // Calculates and returns the number collisions
+  // NOTE: Tried numerous different ways to implement this function, my program just does not run it - i dont know why.
+  // Use this container's display function in the statistics function to check for collisions. It shows the collisions but my
+  // cont. program retrieve the number.
   int countCollisions() const {
-    int collisionCount = 0;
-    // Provide the code for this function
-    return collisionCount;
+      int collisionCount = 0;
+      for (size_t i = 0; i < scheduleTable.getBuckets(); ++i) {
+          if (scheduleTable.getByIndex(i).size() > 1) {
+              collisionCount++;
+          }
+      }
+      return collisionCount;
   }
 
   // Finds and returns the size of the bucket with the longest chain
+  // NOTE: Tried numerous different ways to implement this function, my program just does not run it - i dont know why.
   int maxBucketSize() const {
-    int largestBucket = 0;
-    // Provide the code for this function 
-    return largestBucket;
+      int maxSize = 0;
+      for (const auto& ch : table) {
+          maxSize = std::max(maxSize, static_cast<int>(ch.size()));
+      }
+      return maxSize;
   }
 
 };
+#endif

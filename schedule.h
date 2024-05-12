@@ -1,21 +1,28 @@
-#pragma once
+#ifndef SCHEDULE_H
+#define SCHEDULE_H
 #include <iostream>
 #include <string>
-#include <map>
 #include <iterator>
 #include <utility>
+#include <vector>
 #include <iomanip>
 #include <algorithm>
 #include <fstream>
 #include <sstream>
 #include "scheduleItem.h"
+#include "HashTable.h"
 using namespace std;
+
 class schedule : public scheduleItem
 {
 private:
-	map<string, scheduleItem> scheduleMap;
+	HashTable<string, scheduleItem> scheduleTable;
 public:
-	schedule() {};
+	schedule(int initialSize) : scheduleTable(initialSize) {};
+
+	void setHashFunction(std::function<size_t(const std::string&)> hashFunc) {
+		scheduleTable.setHashFunction(hashFunc);
+	};
 
 	void initSchedule(ifstream& inFile) {
 		if (!inFile) {
@@ -41,81 +48,94 @@ public:
 			getline(ss, dummy3, ',');
 			getline(ss, instructor, ',');
 
+			// string to int
 			int unitsStr = stoi(units);
 			int totEnrlStr = stoi(totEnrl);
 			int capEnrlStr = stoi(capEnrl);
 
-			string key = subject + "_" + catalog + "_" + section;
+			string key = subject + "_" + catalog + "_" + section; // AAA_101_D01F
 			scheduleItem item(subject, catalog, section, component, session, unitsStr, totEnrlStr, capEnrlStr, instructor);
-			addEntry(key, item);
+			scheduleTable.insert(key, item);
 		}
-
 		inFile.close();
 	}
 
-	void addEntry(string key, scheduleItem& item) {
-		scheduleMap.insert(make_pair(key, item));
+	void statistics() {
+		scheduleTable.display();
+		cout << "Size of the hash table: " << scheduleTable.getSize() << endl;
+		cout << "Number of buckets in hash table: " << scheduleTable.getBuckets() << endl;
+		cout << "Load factor of the hash table: " << scheduleTable.getLoadFactor() << endl;
+		cout << "Number of collisions: " << scheduleTable.countCollisions() << endl;
+		cout << "Length of the longest chain: " << scheduleTable.maxBucketSize() << endl;
 	}
 
 	void printHeader() const {
 		cout << "Subject " << " Catalog " << " Section " << " Component " << " Session " << " Units " << " TotEnrl " << " CapEnrl " << " Instructor " << endl;
 	}
 
-	void print() const {
-		for (const auto& kvp : scheduleMap) {
-			const scheduleItem& item = kvp.second;
-			cout << left
-				<< setw(10) << item.getSubject()
-				<< setw(10) << item.getCatalog()
-				<< setw(10) << item.getSection()
-				<< setw(10) << item.getComponent()
-				<< setw(10) << item.getSession()
-				<< setw(8) << item.getUnits()
-				<< setw(8) << item.getTotEnrl()
-				<< setw(6) << item.getCapEnrl()
-				<< setw(8) << item.getInstructor()
-				<< endl;
+	void print() {
+		for (size_t i = 0; i < scheduleTable.getBuckets(); ++i) {
+			vector<scheduleItem> items = scheduleTable.getByIndex(i);
+			for (const auto& item : items) {
+				cout << left
+					<< setw(10) << item.getSubject()
+					<< setw(10) << item.getCatalog()
+					<< setw(10) << item.getSection()
+					<< setw(10) << item.getComponent()
+					<< setw(10) << item.getSession()
+					<< setw(8) << item.getUnits()
+					<< setw(8) << item.getTotEnrl()
+					<< setw(6) << item.getCapEnrl()
+					<< setw(8) << item.getInstructor()
+					<< endl;
+			}
 		}
 	}
 
 	void findBySubject(string& subj) {
-		for (const auto& kvp : scheduleMap) {
-			const scheduleItem& item = kvp.second;
-			transform(subj.begin(), subj.end(), subj.begin(), ::toupper);
-			if (subj == item.getSubject()) {
-				item.print();
+		transform(subj.begin(), subj.end(), subj.begin(), ::toupper);
+		for (size_t i = 0; i < scheduleTable.getBuckets(); ++i) {
+			vector<scheduleItem> items = scheduleTable.getByIndex(i);
+			for (const auto& item : items) {
+				if (subj == item.getSubject()) {
+					item.print();
+				}
 			}
 		}
 	}
+
 	void findBySubjectAndCatalog(string& subj, string& cat) {
-		for (const auto& kvp : scheduleMap) {
-			const scheduleItem& item = kvp.second;
-			transform(subj.begin(), subj.end(), subj.begin(), ::toupper);
-			if (subj == item.getSubject() && cat == item.getCatalog()) {
-				item.print();
+		transform(subj.begin(), subj.end(), subj.begin(), ::toupper);
+		for (size_t i = 0; i < scheduleTable.getBuckets(); ++i) {
+			vector<scheduleItem> items = scheduleTable.getByIndex(i);
+			for (const auto& item : items) {
+				if (subj == item.getSubject() && cat == item.getCatalog()) {
+					item.print();
+				}
 			}
 		}
 	}
 
 	void findByInstructor(string& lastName) {
-		for (const auto& kvp : scheduleMap) {
-			const scheduleItem& item = kvp.second;
-			string instructorFullName = item.getInstructor();
-			size_t comma = instructorFullName.find(',');
-			string instructorLast;
-			if (comma != string::npos) {
-				instructorLast = instructorFullName.substr(0,comma);
-			}
-			else {
-				instructorLast = instructorFullName;
-			}
-			if (capitalizeFirstLetter(lastName) == instructorLast) {
-				item.print();
+		for (size_t i = 0; i < scheduleTable.getBuckets(); ++i) {
+			vector<scheduleItem> items = scheduleTable.getByIndex(i);
+			for (const auto& item : items) {
+				string instructorFullName = item.getInstructor();
+				size_t comma = instructorFullName.find(',');
+				string instructorLast;
+				if (comma != string::npos) {
+					instructorLast = instructorFullName.substr(0, comma);
+				}
+				else {
+					instructorLast = instructorFullName;
+				}
+				if (capitalizeFirstLetter(lastName) == instructorLast) {
+					item.print();
+				}
 			}
 		}
 	}
 
-	// Function in order for all cases for last name to be recognized
 	string capitalizeFirstLetter(string input) {
 		if (!input.empty()) {
 			input[0] = toupper(input[0]);
@@ -125,5 +145,6 @@ public:
 		}
 		return input;
 	}
-
 };
+
+#endif
