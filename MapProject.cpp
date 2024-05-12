@@ -78,7 +78,7 @@ int main() {
 		case 6: {
 			cout << "Enter a key: ";
 			cin >> key;
-			size_t hashTableIndex = gethHashIndex(key, 179);
+			size_t hashTableIndex = gethHashIndex(key, tableSize);
 			cout << "Hash index for: " << key << " is " << hashTableIndex << endl;
 			break;
 		}
